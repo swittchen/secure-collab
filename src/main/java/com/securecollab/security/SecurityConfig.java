@@ -4,7 +4,6 @@ import com.securecollab.security.jwt.JwtAuthFilter;
 import com.securecollab.security.jwt.JwtUtils;
 import com.securecollab.user.CustomOAuth2UserService;
 import com.securecollab.user.UserRepository;
-import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
