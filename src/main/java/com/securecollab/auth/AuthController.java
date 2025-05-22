@@ -1,6 +1,7 @@
 package com.securecollab.auth;
 
 import com.securecollab.security.jwt.JwtUtils;
+import com.securecollab.security.jwt.RefreshTokenService;
 import com.securecollab.user.User;
 import com.securecollab.user.UserRepository;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
@@ -38,7 +40,6 @@ public class AuthController {
         user.setRole("VIEWER");
         userRepository.save(user);
         return ResponseEntity.ok("Registered successfully");
-
     }
 
     @PostMapping("/login")
@@ -48,12 +49,28 @@ public class AuthController {
         );
         User user = (User) auth.getPrincipal();
         String access = jwtUtils.generateAccessToken(user);
-        String refresh = jwtUtils.generateRefreshToken(user);
+        String refresh = refreshTokenService.createAndStoreToken(user.getEmail());
         return ResponseEntity.ok(Map.of("accessToken", access, "refreshToken", refresh));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        return refreshTokenService.getEmailByToken(refreshToken)
+                .map(email -> {
+                    User user = userRepository.findByEmail(email).orElseThrow();
+                    String newAccess = jwtUtils.generateAccessToken(user);
+                    return ResponseEntity.ok(Map.of("accessToken", newAccess));
+                })
+                .orElseGet(() -> ResponseEntity.status(401).body(
+                        Map.of("error: ", "Invalid refresh token")
+                ));
+    }
+
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        refreshTokenService.deleteToken(refreshToken);
         return ResponseEntity.ok("Logged out");
     }
 }
