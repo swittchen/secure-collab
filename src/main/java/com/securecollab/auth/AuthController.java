@@ -54,13 +54,14 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        return refreshTokenService.getEmailByToken(refreshToken)
+    public ResponseEntity<Map<String, String>> refresh(@RequestBody Map<String, String> request) {
+        String oldToken = request.get("refreshToken");
+        return refreshTokenService.getEmailByToken(oldToken)
                 .map(email -> {
                     User user = userRepository.findByEmail(email).orElseThrow();
                     String newAccess = jwtUtils.generateAccessToken(user);
-                    return ResponseEntity.ok(Map.of("accessToken", newAccess));
+                    String newRefresh = refreshTokenService.rotateToken(oldToken);
+                    return ResponseEntity.ok(Map.of("accessToken", newAccess, "refreshToken", newRefresh));
                 })
                 .orElseGet(() -> ResponseEntity.status(401).body(
                         Map.of("error: ", "Invalid refresh token")
