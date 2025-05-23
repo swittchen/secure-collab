@@ -10,6 +10,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 springdoc:
   swagger-ui:
@@ -17,3 +21,10 @@ springdoc:
 
 app:
   upload-dir: uploads
+
+security:
+  jwt:
+    secret: d2c39483f1e4afc583db2198c9a3f27d1a2e594bf31e9c1cb582e60f87123456
+    access-expiration-ms: 3600000
+    refresh-expiration-ms: 604800000
+
