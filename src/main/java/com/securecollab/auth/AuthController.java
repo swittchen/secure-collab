@@ -4,6 +4,7 @@ import com.securecollab.security.jwt.JwtUtils;
 import com.securecollab.security.jwt.RefreshTokenService;
 import com.securecollab.user.User;
 import com.securecollab.user.UserRepository;
+import com.securecollab.user.UserRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class AuthController {
         User user = new User();
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole("VIEWER");
+        user.setRole(UserRole.VIEWER);
         userRepository.save(user);
         return ResponseEntity.ok("Registered successfully");
     }

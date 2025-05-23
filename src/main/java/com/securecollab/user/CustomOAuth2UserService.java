@@ -29,7 +29,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setPassword("");
-            newUser.setRole("VIEWER");
+            newUser.setRole(UserRole.VIEWER);
             return userRepository.save(newUser);
         });
 
