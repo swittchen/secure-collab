@@ -5,6 +5,9 @@ import com.securecollab.security.jwt.RefreshTokenService;
 import com.securecollab.user.User;
 import com.securecollab.user.UserRepository;
 import com.securecollab.user.UserRole;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Registration, login, refresh, logout")
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -30,6 +34,8 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final RefreshTokenService refreshTokenService;
 
+    @Operation(summary = "User registration")
+    @ApiResponse(responseCode = "200", description = "Registration succeed")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
@@ -43,6 +49,8 @@ public class AuthController {
         return ResponseEntity.ok("Registered successfully");
     }
 
+    @Operation(summary = "User authentication")
+    @ApiResponse(responseCode = "200", description = "Successfully login, returns access/refresh tokens")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
@@ -54,6 +62,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("accessToken", access, "refreshToken", refresh));
     }
 
+    @Operation(summary = "Refreshing of access tokens upon refresh token")
+    @ApiResponse(responseCode = "200", description = "New access and refresh tokens")
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(@RequestBody Map<String, String> request) {
         String oldToken = request.get("refreshToken");
@@ -69,6 +79,8 @@ public class AuthController {
                 ));
     }
 
+    @Operation(summary = "Exit (invalidation of refresh tokens)")
+    @ApiResponse(responseCode = "200", description = "Token deleted")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
