@@ -1,9 +1,18 @@
+version: '3.8'
+
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:15
+    container_name: securecollab-postgres
+    restart: unless-stopped
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_DB: securecollab
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
-      - '5432'
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
