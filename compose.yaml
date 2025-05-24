@@ -1,6 +1,11 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:7
+    container_name: securecollab-redis
+    ports:
+      - "6379:6379"
   postgres:
     image: postgres:15
     container_name: securecollab-postgres
@@ -10,7 +15,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

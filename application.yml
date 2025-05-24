@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/securecollab
+    url: jdbc:postgresql://localhost:5433/securecollab
     username: postgres
     password: password
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -10,10 +11,29 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: localhost
       port: 6379
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
 
 springdoc:
   swagger-ui:
@@ -24,7 +44,6 @@ app:
 
 security:
   jwt:
-    secret: d2c39483f1e4afc583db2198c9a3f27d1a2e594bf31e9c1cb582e60f87123456
-    access-expiration-ms: 3600000
-    refresh-expiration-ms: 604800000
-
+    secret: ${JWT_SECRET}
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
