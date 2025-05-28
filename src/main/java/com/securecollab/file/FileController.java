@@ -1,5 +1,6 @@
 package com.securecollab.file;
 
+import com.securecollab.audit.Audit;
 import com.securecollab.user.User;
 import com.securecollab.workspace.WorkspaceSecurityService;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,7 @@ public class FileController {
     @PostMapping("/workspaces/{workspaceId}/files")
     @PreAuthorize("@workspaceSecurity.isMember(#workspaceId)")
     @Transactional
+    @Audit(action = "UPLOAD_FILE")
     public ResponseEntity<?> upload(@PathVariable Long workspaceId,
                                     @RequestParam("file") MultipartFile file,
                                     @AuthenticationPrincipal User user) throws IOException {
@@ -51,12 +53,14 @@ public class FileController {
 
     @GetMapping("/workspaces/{workspaces}/files")
     @PreAuthorize("@workspaceSecurity.isMember(#workspaceId)")
+    @Audit(action = "LIST_FILES")
     public List<StoredFile> list(@PathVariable Long workspaceId) {
         return fileRepository.findByWorkspaceId(workspaceId);
     }
 
     @GetMapping("/files/{fileId}/download")
     @PreAuthorize("@workspaceSecurity.isMember(@fileRepository.getWorkspaceId(#fileId))")
+    @Audit(action = "DOWNLOAD_FILE")
     public ResponseEntity<Resource> download(@PathVariable Long fileId) throws MalformedURLException {
         StoredFile file = fileRepository.findById(fileId).orElseThrow();
         Path path = fileStorage.load(file.getStoredFilename());
@@ -70,6 +74,7 @@ public class FileController {
 
     @DeleteMapping("/files/{fileId}")
     @PreAuthorize("@workspaceSecurity.hasRole(@fileRepository.getWorkspaceId(#fileId), 'OWNER')")
+    @Audit(action = "DELETE_FILE")
     public ResponseEntity<?> delete (@PathVariable Long fileId) throws IOException{
         StoredFile file = fileRepository.findById(fileId).orElseThrow();
         fileStorage.delete(file.getStoredFilename());

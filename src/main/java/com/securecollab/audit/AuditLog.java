@@ -1,28 +1,39 @@
 package com.securecollab.audit;
 
+import com.securecollab.user.User;
+import com.securecollab.workspace.Workspace;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
+@Table(name = "audit_logs")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+
 public class AuditLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
-    private String userEmail;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workspace_id")
+    private Workspace workspace;
 
     private String action;
 
-    private Instant timeStamp;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @Column(length = 2000)
-    private String details;
+    private Instant timestamp;
 }

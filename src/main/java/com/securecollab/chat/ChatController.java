@@ -1,5 +1,6 @@
 package com.securecollab.chat;
 
+import com.securecollab.audit.Audit;
 import com.securecollab.user.User;
 import com.securecollab.workspace.WorkspaceSecurityService;
 import jakarta.validation.constraints.NotBlank;
@@ -27,6 +28,7 @@ public class ChatController {
     private final WorkspaceSecurityService workspaceSecurity;
 
     @MessageMapping("/chat/{workspaceId}")
+    @Audit(action = "SEND_MESSAGE")
     public void handleMessage(@Payload ChatInputMessage message,
                               @AuthenticationPrincipal User sender,
                               @PathVariable Long workspaceId) {

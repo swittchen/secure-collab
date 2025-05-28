@@ -1,5 +1,9 @@
 package com.securecollab.audit;
 
+import com.securecollab.user.User;
+import com.securecollab.workspace.Workspace;
+import com.securecollab.workspace.WorkspaceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 
 @Aspect
@@ -20,39 +25,53 @@ import java.time.Instant;
 public class AuditAspect {
 
     private final AuditLogRepository auditLogRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     @Around("@annotation(com.securecollab.audit.Audit)")
+    @Transactional
     public Object logAction(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Audit auditAnnotation = method.getAnnotation(Audit.class);
 
         String action = auditAnnotation.action();
-        String email = extractCurrentUserEmail();
+        User user = extractCurrentUser();
+        Workspace workspace = extractWorkspaceArg(joinPoint);
 
-        String details = buildDetails(joinPoint);
+        String description = buildDescription(joinPoint);
 
-        //save log in to DB
         auditLogRepository.save(AuditLog.builder()
-                .userEmail(email)
+                .user(user)
+                .workspace(workspace)
                 .action(action)
-                .timeStamp(Instant.now())
-                .details(details)
+                .description(description)
+                .timestamp(Instant.now())
                 .build());
 
-        log.info("AUDIT: {} by {}", action, email);
+        log.info("AUDIT: {} by {}", action, user.getEmail());
         return joinPoint.proceed();
     }
 
 
-    private String extractCurrentUserEmail() {
+    private User extractCurrentUser() throws AccessDeniedException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
-            return auth.getName();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof User user) {
+            return user;
         }
-        return "anonymous";
+        throw new AccessDeniedException("Unauthenticated access");
     }
 
-    private String buildDetails(ProceedingJoinPoint joinPoint) {
+    private Workspace extractWorkspaceArg(ProceedingJoinPoint joinPoint) {
+        for (Object arg : joinPoint.getArgs()) {
+            if (arg instanceof Workspace w) {
+                return w;
+            } else if (arg instanceof Long workspaceId) {
+                return workspaceRepository.findById(workspaceId).orElse(null);
+            }
+        }
+        return null;
+    }
+
+    private String buildDescription(ProceedingJoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
         StringBuilder sb = new StringBuilder();
         for (Object arg : args) {

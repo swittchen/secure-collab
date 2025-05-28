@@ -1,10 +1,10 @@
 
 -- User table
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id BIGSERIAL PRIMARY KEY ,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255),
-    full_name VARCHAR(255),
+    full_name VARCHAR,
     auth_provider VARCHAR(50) NOT NULL DEFAULT 'LOCAL',
     created_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at TIMESTAMP NOT NULL DEFAULT now()

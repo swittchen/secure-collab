@@ -70,11 +70,4 @@ public class JwtUtils {
                 .getBody();
     }
 
-
 }
-// application.yaml
-// security:
-//   jwt:
-//     secret: supersecretkey1234567890abcdef1234567890
-//     access-expiration-ms: 900000    # 15 минут
-//     refresh-expiration-ms: 604800000 # 7 дней

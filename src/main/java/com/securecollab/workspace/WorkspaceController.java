@@ -1,5 +1,6 @@
 package com.securecollab.workspace;
 
+import com.securecollab.audit.Audit;
 import com.securecollab.user.User;
 import com.securecollab.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -22,6 +23,7 @@ public class WorkspaceController {
 
     @PostMapping
     @Transactional
+    @Audit(action = "CREATE_WORKSPACE")
     public ResponseEntity<Workspace> create(@RequestBody Workspace workspace,
                                             @AuthenticationPrincipal User user) {
         Workspace saved = workspaceRepository.save(workspace);
@@ -43,6 +45,7 @@ public class WorkspaceController {
 
     @PostMapping("/{id}/invite")
     @PreAuthorize("@workspaceSecurity.hasRole(#id, 'OWNER')")
+    @Audit(action = "INVITE_USER")
     public ResponseEntity<?> invite(@PathVariable Long id,
                                     @RequestParam String email,
                                     @RequestParam(defaultValue = "VIEWER") WorkspaceRole role) {

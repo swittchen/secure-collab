@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5433/securecollab
+    username: postgres
+    password: password
 
   jpa:
     hibernate:
@@ -14,9 +14,8 @@ spring:
 
   data:
     redis:
-      host: redis
+      host: localhost
       port: 6379
-      password: ${REDIS_PASSWORD}
 
   security:
     oauth2:
@@ -45,6 +44,6 @@ app:
 
 security:
   jwt:
-    secret: ${JWT_SECRET}
-    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS}
-    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
+    secret: ${SECURITY_JWT_SECRET}
+    access-expiration-ms: ${SECURITY_JWT_ACCESS_EXPIRATION_MS}
+    refresh-expiration-ms: ${SECURITY_JWT_REFRESH_EXPIRATION_MS}

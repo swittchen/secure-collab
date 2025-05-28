@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Auth", description = "Registration, login, refresh, logout")
 public class AuthController {
 
@@ -43,8 +45,10 @@ public class AuthController {
         }
         User user = new User();
         user.setEmail(request.email());
+        user.setFullName(request.fullName());
         user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(UserRole.VIEWER);
+        UserRole role = request.role() != null ? request.role() : UserRole.VIEWER;
+        user.setRole(role);
         userRepository.save(user);
         return ResponseEntity.ok("Registered successfully");
     }
@@ -57,6 +61,11 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
         User user = (User) auth.getPrincipal();
+        if (user.getEmail() == null) {
+            throw new RuntimeException("user.getEmail() is null");
+        }
+        log.info("Authenticated user email: {}", user.getEmail()); // ✅ безопасно
+
         String access = jwtUtils.generateAccessToken(user);
         String refresh = refreshTokenService.createAndStoreToken(user.getEmail());
         return ResponseEntity.ok(Map.of("accessToken", access, "refreshToken", refresh));
@@ -87,9 +96,14 @@ public class AuthController {
         refreshTokenService.deleteToken(refreshToken);
         return ResponseEntity.ok("Logged out");
     }
+
+    @PostMapping("/test")
+    public ResponseEntity<?> test(@RequestBody LoginRequest req) {
+        return ResponseEntity.ok(Map.of("email", req.email(), "password", req.password()));
+    }
 }
 
-record RegisterRequest(String email, String password) {
+record RegisterRequest(String email, String password, String fullName, UserRole role) {
 }
 
 record LoginRequest(String email, String password) {
