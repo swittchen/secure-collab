@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/securecollab
-    username: postgres
-    password: password
+    url: jdbc:postgresql://localhost:5433/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
@@ -14,8 +14,9 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
+      password: ${REDIS_PASSWORD}
 
   security:
     oauth2:
