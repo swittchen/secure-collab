@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Типы
 type User = {
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.getItem('accessToken')
   );
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   const isLoggedIn = !!accessToken;
 
@@ -34,15 +36,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     setAccessToken(null);
     setUser(null);
+    navigate('/');
   };
 
   // Auto-fetch user on first load if token exists
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const res = await axios.get('/api/user/me', {
+        const res = await axios.get('/api/auth/me', {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -70,6 +74,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (context === undefined) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
   return context;
 };

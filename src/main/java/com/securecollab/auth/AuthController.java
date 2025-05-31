@@ -15,11 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -47,8 +45,10 @@ public class AuthController {
         user.setEmail(request.email());
         user.setFullName(request.fullName());
         user.setPassword(passwordEncoder.encode(request.password()));
-        UserRole role = request.role() != null ? request.role() : UserRole.VIEWER;
-        user.setRole(role);
+//        UserRole role = request.role() != null ? request.role() : UserRole.VIEWER;
+//        user.setRole(role);
+        //admin will be set manually in db
+        user.setRole(UserRole.VIEWER);
         userRepository.save(user);
         return ResponseEntity.ok("Registered successfully");
     }
@@ -97,9 +97,18 @@ public class AuthController {
         return ResponseEntity.ok("Logged out");
     }
 
-    @PostMapping("/test")
-    public ResponseEntity<?> test(@RequestBody LoginRequest req) {
-        return ResponseEntity.ok(Map.of("email", req.email(), "password", req.password()));
+    @Operation(summary = "Get current authenticated user")
+    @GetMapping("/me")
+    public ResponseEntity<?> getMe(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "email", user.getEmail(),
+                "fullName", user.getFullName(),
+                "role", user.getRole()
+        ));
     }
 }
 

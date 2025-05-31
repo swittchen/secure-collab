@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -46,4 +47,21 @@ public class UserController {
         userRepository.deleteById(id);
         return ResponseEntity.ok("User deleted");
     }
+
+    @Operation(summary = "Change user role")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<?> updateUserRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        return userRepository.findById(id).map(user -> {
+            String newRole = body.get("role");
+            try {
+                user.setRole(UserRole.valueOf(newRole));
+                userRepository.save(user);
+                return ResponseEntity.ok("User role updated");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body("Invalid role");
+            }
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
 }
