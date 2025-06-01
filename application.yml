@@ -28,6 +28,7 @@ spring:
             scope:
               - email
               - profile
+              - openid
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
@@ -47,3 +48,12 @@ security:
     secret: ${SECURITY_JWT_SECRET}
     access-expiration-ms: ${SECURITY_JWT_ACCESS_EXPIRATION_MS}
     refresh-expiration-ms: ${SECURITY_JWT_REFRESH_EXPIRATION_MS}
+
+logging:
+  level:
+    root: INFO
+    com.dein.paket: DEBUG
+  file:
+    name: logs/securecollab.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"

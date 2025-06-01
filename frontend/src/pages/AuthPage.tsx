@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { login, register } from '../api/auth';
+import React, { useState } from "react";
+import { login, register } from "../api/auth";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     try {
       if (isLogin) {
         const res = await login(email, password);
-        localStorage.setItem('accessToken', res.data.accessToken);
-        window.location.href = '/dashboard';
+        localStorage.setItem("accessToken", res.data.accessToken);
+        window.location.href = "/dashboard";
       } else {
         await register(email, password, fullName);
-        alert('Registration successful, please login.');
+        alert("Registration successful, please login.");
         setIsLogin(true);
       }
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Authentication failed');
+      setError(err?.response?.data?.message || "Authentication failed");
     }
   };
 
@@ -37,7 +37,7 @@ const AuthPage = () => {
           <button
             onClick={() => setIsLogin(true)}
             className={`px-4 py-2 rounded-l-full transition ${
-              isLogin ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+              isLogin ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
             }`}
           >
             Login
@@ -45,7 +45,7 @@ const AuthPage = () => {
           <button
             onClick={() => setIsLogin(false)}
             className={`px-4 py-2 rounded-r-full transition ${
-              !isLogin ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700'
+              !isLogin ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"
             }`}
           >
             Register
@@ -85,9 +85,20 @@ const AuthPage = () => {
             type="submit"
             className="w-full py-2 mt-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition"
           >
-            {isLogin ? 'Log In' : 'Register'}
+            {isLogin ? "Log In" : "Register"}
           </button>
         </form>
+        {isLogin && (
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-500 mb-2">or</p>
+            <a
+              href="http://localhost:8080/oauth2/authorization/google"
+              className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition"
+            >
+              Login with Google
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
