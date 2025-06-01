@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
+import java.util.UUID;
 
 @Aspect
 @Component
@@ -64,7 +65,7 @@ public class AuditAspect {
         for (Object arg : joinPoint.getArgs()) {
             if (arg instanceof Workspace w) {
                 return w;
-            } else if (arg instanceof Long workspaceId) {
+            } else if (arg instanceof UUID workspaceId) {
                 return workspaceRepository.findById(workspaceId).orElse(null);
             }
         }

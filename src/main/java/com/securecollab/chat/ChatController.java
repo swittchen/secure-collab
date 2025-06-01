@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class ChatController {
     @Audit(action = "SEND_MESSAGE")
     public void handleMessage(@Payload ChatInputMessage message,
                               @AuthenticationPrincipal User sender,
-                              @PathVariable Long workspaceId) {
+                              @PathVariable UUID workspaceId) {
         if (!workspaceSecurity.isMember(workspaceId)) return;
 
         ChatMessage saved = new ChatMessage();
@@ -50,7 +51,7 @@ public class ChatController {
 
     @GetMapping("/api/workspaces/{id}/chat")
     @PreAuthorize("@workspaceSecurity.isMember(#id)")
-    public List<ChatOutputMessage> getChat(@PathVariable Long id) {
+    public List<ChatOutputMessage> getChat(@PathVariable UUID id) {
         return messageRepository.findByWorkspaceIdOrderByTimestampAsc(id).stream()
                 .map(m -> new ChatOutputMessage(
                         m.getSender().getEmail(),

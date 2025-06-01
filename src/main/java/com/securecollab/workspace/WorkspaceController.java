@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/workspaces")
@@ -20,6 +21,7 @@ public class WorkspaceController {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMembershipRepository membershipRepository;
     private final UserRepository userRepository;
+    private final WorkspaceService workspaceService;
 
     @PostMapping
     @Transactional
@@ -35,9 +37,14 @@ public class WorkspaceController {
         return ResponseEntity.ok(saved);
     }
 
+    @GetMapping
+    public List<WorkspaceDto> getMyWorkspaces(@AuthenticationPrincipal User user) {
+        return workspaceService.getWorkspacesForUser(user);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("@workspaceSecurity.isMember(#id)")
-    public ResponseEntity<Workspace> getById(@PathVariable Long id) {
+    public ResponseEntity<Workspace> getById(@PathVariable UUID id) {
         return workspaceRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -46,7 +53,7 @@ public class WorkspaceController {
     @PostMapping("/{id}/invite")
     @PreAuthorize("@workspaceSecurity.hasRole(#id, 'OWNER')")
     @Audit(action = "INVITE_USER")
-    public ResponseEntity<?> invite(@PathVariable Long id,
+    public ResponseEntity<?> invite(@PathVariable UUID id,
                                     @RequestParam String email,
                                     @RequestParam(defaultValue = "VIEWER") WorkspaceRole role) {
         Workspace workspace = workspaceRepository.findById(id).orElseThrow();
@@ -64,7 +71,7 @@ public class WorkspaceController {
 
     @GetMapping("/{id}/members")
     @PreAuthorize("@workspaceSecurity.isMember(#id)")
-    public List<WorkspaceMembership> listMembers(@PathVariable Long id) {
+    public List<WorkspaceMembership> listMembers(@PathVariable UUID id) {
         return membershipRepository.findAll().stream()
                 .filter(m -> m.getWorkspace().getId().equals(id))
                 .toList();

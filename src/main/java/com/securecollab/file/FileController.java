@@ -19,6 +19,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -33,7 +34,7 @@ public class FileController {
     @PreAuthorize("@workspaceSecurity.isMember(#workspaceId)")
     @Transactional
     @Audit(action = "UPLOAD_FILE")
-    public ResponseEntity<?> upload(@PathVariable Long workspaceId,
+    public ResponseEntity<?> upload(@PathVariable UUID workspaceId,
                                     @RequestParam("file") MultipartFile file,
                                     @AuthenticationPrincipal User user) throws IOException {
         String storedFilename = fileStorage.storeFile(file);
@@ -54,14 +55,14 @@ public class FileController {
     @GetMapping("/workspaces/{workspaces}/files")
     @PreAuthorize("@workspaceSecurity.isMember(#workspaceId)")
     @Audit(action = "LIST_FILES")
-    public List<StoredFile> list(@PathVariable Long workspaceId) {
+    public List<StoredFile> list(@PathVariable UUID workspaceId) {
         return fileRepository.findByWorkspaceId(workspaceId);
     }
 
     @GetMapping("/files/{fileId}/download")
     @PreAuthorize("@workspaceSecurity.isMember(@fileRepository.getWorkspaceId(#fileId))")
     @Audit(action = "DOWNLOAD_FILE")
-    public ResponseEntity<Resource> download(@PathVariable Long fileId) throws MalformedURLException {
+    public ResponseEntity<Resource> download(@PathVariable UUID fileId) throws MalformedURLException {
         StoredFile file = fileRepository.findById(fileId).orElseThrow();
         Path path = fileStorage.load(file.getStoredFilename());
         Resource resource = new UrlResource(path.toUri());
@@ -75,7 +76,7 @@ public class FileController {
     @DeleteMapping("/files/{fileId}")
     @PreAuthorize("@workspaceSecurity.hasRole(@fileRepository.getWorkspaceId(#fileId), 'OWNER')")
     @Audit(action = "DELETE_FILE")
-    public ResponseEntity<?> delete (@PathVariable Long fileId) throws IOException{
+    public ResponseEntity<?> delete (@PathVariable UUID fileId) throws IOException{
         StoredFile file = fileRepository.findById(fileId).orElseThrow();
         fileStorage.delete(file.getStoredFilename());
         fileRepository.delete(file);

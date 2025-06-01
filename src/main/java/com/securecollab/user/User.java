@@ -12,10 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.securecollab.auth.AuthProvider;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name ="users")
@@ -26,8 +23,8 @@ import java.util.Set;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     @Column(name = "full_name")
     private String fullName;

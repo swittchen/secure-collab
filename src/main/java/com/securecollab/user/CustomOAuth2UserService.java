@@ -32,9 +32,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         OAuth2User oAuth2User;
 
-        boolean isOidc = "openid".equals(userRequest.getClientRegistration().getScopes().stream()
-                .filter(scope -> scope.contains("openid")).findFirst().orElse(null));
-
         if (userRequest instanceof OidcUserRequest oidcRequest) {
             OidcUser oidcUser = oidcUserService.loadUser(oidcRequest);
             oAuth2User = wrapUser(oidcUser, userRequest); // Google / OIDC

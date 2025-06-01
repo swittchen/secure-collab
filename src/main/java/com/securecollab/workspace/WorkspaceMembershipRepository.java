@@ -2,11 +2,13 @@ package com.securecollab.workspace;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMembership, Long> {
+import java.util.UUID;
 
-    boolean existsByWorkspaceIdAndUserId(Long workspaceId, Long userId);
+public interface WorkspaceMembershipRepository extends JpaRepository<WorkspaceMembership, UUID> {
 
-    boolean existsByWorkspaceIdAndUserIdAndRole(Long workspaceId, Long userId, WorkspaceRole role);
+    boolean existsByWorkspaceIdAndUserId(UUID workspaceId, UUID userId);
 
-    WorkspaceMembership findByWorkspaceIdAndUserId(Long workspaceId, Long userId);
+    boolean existsByWorkspaceIdAndUserIdAndRole(UUID workspaceId, UUID userId, WorkspaceRole role);
+
+    WorkspaceMembership findByWorkspaceIdAndUserId(UUID workspaceId, UUID userId);
 }

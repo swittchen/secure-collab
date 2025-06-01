@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,10 +14,10 @@ import java.time.Instant;
 public class ChatMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
-    private Long workspaceId;
+    private UUID workspaceId;
 
     @ManyToOne(optional = false)
     private User sender;

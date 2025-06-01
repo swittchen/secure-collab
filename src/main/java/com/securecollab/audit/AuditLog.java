@@ -26,10 +26,9 @@ public class AuditLog {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workspace_id")
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
-
     private String action;
 
     @Column(columnDefinition = "TEXT")

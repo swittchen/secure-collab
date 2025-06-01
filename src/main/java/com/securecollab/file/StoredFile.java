@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -13,13 +14,13 @@ import java.time.Instant;
 public class StoredFile {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
     private String originalFilename;
     private String storedFilename;
     private String contentType;
-    private Long workspaceId;
+    private UUID workspaceId;
     private Instant uploadedAt;
 
     @ManyToOne(optional = false)
